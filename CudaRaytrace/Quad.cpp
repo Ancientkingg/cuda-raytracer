@@ -44,11 +44,6 @@ Quad::Quad(unsigned int width, unsigned int height) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    glGenRenderbuffers(1, &RBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, width, height);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
     glGenBuffers(1, &PBO);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, PBO);
     glBufferData(GL_PIXEL_UNPACK_BUFFER, width * height * 4, NULL, GL_DYNAMIC_COPY);

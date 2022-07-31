@@ -27,7 +27,7 @@ int Window::init() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// initialize and create window for glfw
-	GLFWwindow* window = glfwCreateWindow(Window::width, Window::height, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(Window::width, Window::height, "A CUDA raytracer", NULL, NULL);
 
 	// handle error and exit
 	if (window == NULL) {

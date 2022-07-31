@@ -13,7 +13,6 @@ public:
 
 	unsigned int texture;
 	unsigned int PBO; // pixel buffer object
-	unsigned int RBO; // depth buffer
 	unsigned int FBO; // frame buffer
 	
 	cudaGraphicsResource_t CGR;

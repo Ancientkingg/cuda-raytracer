@@ -1,7 +1,7 @@
 #include "Window.h"
 
 int main() {
-	Window window(800,800);
+	Window window(1600,900);
 
 	window.init();
 

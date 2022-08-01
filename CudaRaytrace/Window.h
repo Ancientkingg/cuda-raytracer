@@ -1,10 +1,9 @@
 #pragma once
 
 class Window {
+public:
 	unsigned int width;
 	unsigned int height;
-
-public:
 	Window(unsigned int width, unsigned int height);
 	int init();
 };

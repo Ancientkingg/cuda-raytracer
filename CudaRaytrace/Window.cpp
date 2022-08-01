@@ -10,6 +10,10 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	// resize the frame buffer
 	glViewport(0, 0, width, height);
+	Window* myWindow = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+
+	myWindow->width = width;
+	myWindow->height = height;
 }
 
 
@@ -28,6 +32,8 @@ int Window::init() {
 
 	// initialize and create window for glfw
 	GLFWwindow* window = glfwCreateWindow(Window::width, Window::height, "A CUDA raytracer", NULL, NULL);
+
+	glfwSetWindowUserPointer(window, reinterpret_cast<void*>(this));
 
 	// handle error and exit
 	if (window == NULL) {
@@ -51,14 +57,13 @@ int Window::init() {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	Shader* shader = new Shader("./shaders/rendertype_screen.vsh","./shaders/rendertype_screen.fsh");
-	Quad* quad = new Quad(width, height);
+	Quad* quad = new Quad(Window::width, Window::height);
 
 	// main render loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// input
 		processInput(window);
-
 
 		// render
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -67,6 +72,7 @@ int Window::init() {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		quad->renderKernel(Window::width, Window::height);
 		shader->use();
 		glBindVertexArray(quad->VAO);
 		glBindTexture(GL_TEXTURE_2D, quad->texture);

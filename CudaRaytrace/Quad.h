@@ -14,10 +14,13 @@ public:
 	unsigned int texture;
 	unsigned int PBO; // pixel buffer object
 	unsigned int FBO; // frame buffer
+
 	
 	cudaGraphicsResource_t CGR;
 	cudaArray_t CA;
 
 	std::vector<float> vertices;
 	Quad(unsigned int width, unsigned int height);
+
+	void renderKernel(unsigned int width, unsigned int height);
 };

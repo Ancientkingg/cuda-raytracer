@@ -41,7 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Familie\Documents\libraries\glfw-3.3.8.bin.WIN64\include;C:\Users\Familie\Documents\libraries\glad\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Familie\Documents\libraries\glm;C:\Users\Familie\Documents\libraries\glfw-3.3.8.bin.WIN64\include;C:\Users\Familie\Documents\libraries\glad\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Familie\Documents\libraries\glfw-3.3.8.bin.WIN64\lib-vc2022;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -79,15 +79,20 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
+    <CudaCompile Include="Ray.h" />
+    <CudaCompile Include="RaytracerKernel.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cuda_errors.h" />
+    <ClInclude Include="FrameBuffer.h" />
+    <ClInclude Include="Hittable.h" />
     <ClInclude Include="input.h" />
-    <ClInclude Include="kernel.h" />
+    <ClInclude Include="RaytracerKernel.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="Window.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cuda_errors.cpp" />

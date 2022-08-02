@@ -67,11 +67,14 @@ Quad::Quad(unsigned int width, unsigned int height) {
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
     glBindTexture(GL_TEXTURE_2D, 0);
+
+
+    renderer = kernelInfo(this->CGR, width, height);
 }   
 
 void Quad::renderKernel(unsigned int width, unsigned int height) {
-    kernel(this->CGR, width, height);
-
+    glBindTexture(GL_TEXTURE_2D, 0);
+    renderer.render(width, height);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, this->PBO);
     glBindTexture(GL_TEXTURE_2D, this->texture);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, NULL);

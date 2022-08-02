@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cuda_runtime.h>
+#include "RaytracerKernel.h"
 
 #include <vector>
 
@@ -14,8 +15,8 @@ public:
 	unsigned int texture;
 	unsigned int PBO; // pixel buffer object
 	unsigned int FBO; // frame buffer
+	kernelInfo renderer;
 
-	
 	cudaGraphicsResource_t CGR;
 	cudaArray_t CA;
 

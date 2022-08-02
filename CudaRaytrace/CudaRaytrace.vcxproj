@@ -83,6 +83,7 @@
     <CudaCompile Include="RaytracerKernel.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="cuda_errors.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Hittable.h" />

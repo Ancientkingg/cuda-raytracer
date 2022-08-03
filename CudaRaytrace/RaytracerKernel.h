@@ -12,8 +12,10 @@ struct kernelInfo {
     Camera** d_camera;
     curandState* d_rand_state;
     Hittable** d_list;
+    unsigned int list_size;
     Hittable** d_world;
     cudaGraphicsResource_t resources;
+    CameraInfo camera_info;
 
     kernelInfo() {}
     kernelInfo(cudaGraphicsResource_t resources, int nx, int ny);

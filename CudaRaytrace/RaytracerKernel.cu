@@ -18,15 +18,15 @@
 
 #include "RaytracerKernel.h"
 
-__global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_camera) {
+__global__ void create_world(Hittable** d_list, unsigned int d_list_size, Hittable** d_world, Camera** d_camera, CameraInfo camera_info) {
 	if (threadIdx.x == 0 && blockIdx.x == 0) {
 		d_list[0] = new Sphere(glm::vec3(0, 0, -1), 0.5f, new Lambertian(glm::vec3(0.8f,0.3f,0.3f)));
 		d_list[1] = new Sphere(glm::vec3(0, -100.5, -1), 100.0f, new Lambertian(glm::vec3(0.8f, 0.8f, 0.0f)));
 		d_list[2] = new Sphere(glm::vec3(-1, 0, -1), 0.5f, new Dielectric(1.5f));
 		d_list[3] = new Sphere(glm::vec3(-1, 0, -1), -0.4f, new Dielectric(1.5f));
 		d_list[4] = new Sphere(glm::vec3(1, 0, -1), 0.5f, new Metal(glm::vec3(0.8f, 0.8f, 0.8f), 0.3f));
-		*d_world = new World(d_list, 5);
-		*d_camera = new Camera();
+		*d_world = new World(d_list, d_list_size);
+		*d_camera = camera_info.constructCamera();
 	}
 }
 
@@ -37,12 +37,10 @@ __global__ void create_world(Hittable** d_list, Hittable** d_world, Camera** d_c
 //	}
 //}
 
-__global__ void free_world(Hittable** d_list, Hittable** d_world, Camera** d_camera) {
-	delete d_list[0];
-	delete d_list[1];
-	delete d_list[2];
-	delete d_list[3];
-	delete d_list[4];
+__global__ void free_world(Hittable** d_list, unsigned int d_list_size, Hittable** d_world, Camera** d_camera) {
+	for (int i = 0; i < d_list_size; i++) {
+		delete d_list[i];
+	}
 	delete* d_world;
 	delete* d_camera;
 }
@@ -72,7 +70,7 @@ __global__ void raytrace(frameBuffer fb, Hittable** world, Camera** camera, cura
 	glm::vec3 col = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	// samples
-	int ns = 10;
+	int ns = 3;
 
 	for (int s = 0; s < ns; s++) {
 		// normalized screen coordinates
@@ -93,14 +91,18 @@ __global__ void raytrace(frameBuffer fb, Hittable** world, Camera** camera, cura
 kernelInfo::kernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 	this->resources = resources;
 
+	camera_info = CameraInfo(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f), 90.0f, nx, ny);
+
 	checkCudaErrors(cudaMalloc((void**)&d_camera, sizeof(Camera*)));
 
 	checkCudaErrors(cudaMalloc((void**)&d_rand_state, nx * ny * sizeof(curandState)));
 
-	checkCudaErrors(cudaMalloc((void**)&d_list, 5 * sizeof(Hittable*)));
+	list_size = 5;
+
+	checkCudaErrors(cudaMalloc((void**)&d_list, list_size * sizeof(Hittable*)));
 
 	checkCudaErrors(cudaMalloc((void**)&d_world, sizeof(Hittable*)));
-	create_world << <1, 1 >> > (d_list, d_world, d_camera);
+	create_world << <1, 1 >> > (d_list, list_size, d_world, d_camera, camera_info);
 
 	checkCudaErrors(cudaGetLastError());
 	checkCudaErrors(cudaDeviceSynchronize());
@@ -143,7 +145,7 @@ void kernelInfo::render(int nx, int ny) {
 
 void kernelInfo::destroy() {
 
-	free_world<<<1, 1>>> (d_list, d_world, d_camera);
+	free_world<<<1, 1>>> (d_list, list_size, d_world, d_camera);
 
 	checkCudaErrors(cudaFree(d_list));
 	checkCudaErrors(cudaFree(d_world));

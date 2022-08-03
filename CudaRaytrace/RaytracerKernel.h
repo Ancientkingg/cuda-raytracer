@@ -17,6 +17,7 @@ struct kernelInfo {
 
     kernelInfo() {}
     kernelInfo(cudaGraphicsResource_t resources, int nx, int ny);
+    void setCamera(glm::vec3 speed, glm::vec3 rotation);
     void render(int nx, int ny);
     void destroy();
 };

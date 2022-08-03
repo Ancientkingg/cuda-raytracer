@@ -35,6 +35,9 @@
     <ClInclude Include="Camera.h">
       <Filter>Raytracer</Filter>
     </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\rendertype_screen.fsh" />

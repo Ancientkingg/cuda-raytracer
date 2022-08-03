@@ -7,16 +7,7 @@
 #include "device_launch_parameters.h"
 #include "Hittable.h"
 #include <curand_kernel.h>
-
-#define RANDVEC3 glm::vec3(curand_uniform(local_rand_state),curand_uniform(local_rand_state),curand_uniform(local_rand_state))
-
-__device__ glm::vec3 random_in_unit_sphere(curandState* local_rand_state) {
-	glm::vec3 p;
-	do {
-		p = 2.0f * RANDVEC3 - glm::vec3(1, 1, 1);
-	} while (glm::dot(p,p) >= 1.0f);
-	return p;
-}
+#include "Material.h"
 
 class frameBuffer {
 public:
@@ -34,15 +25,21 @@ public:
 	}
 
 	__device__ glm::vec3 color(const Ray& r, Hittable** world, curandState* local_rand_state) {
-		float cur_attenuation = 1.0f;
 		Ray cur_ray = r;
-
+		glm::vec3 cur_attenuation = glm::vec3(1.0, 1.0, 1.0);
+		// ray depth
 		for (int i = 0; i < 50; i++) {
 			HitRecord rec;
 			if ((*world)->hit(cur_ray, 0.001f, FLT_MAX, rec)) {
-				glm::vec3 target = rec.p + rec.normal + random_in_unit_sphere(local_rand_state);
-				cur_attenuation *= 0.5f;
-				cur_ray = Ray(rec.p, target - rec.p);
+				Ray scattered;
+				glm::vec3 attenuation;
+				if (rec.mat_ptr->scatter(cur_ray, rec, attenuation, scattered, local_rand_state)) {
+					cur_attenuation *= attenuation;
+					cur_ray = scattered;
+				}
+				else {
+					return glm::vec3(0.0f, 0.0f, 0.0f);
+				}
 			}
 			else {
 				glm::vec3 unit_direction = glm::normalize(cur_ray.direction);

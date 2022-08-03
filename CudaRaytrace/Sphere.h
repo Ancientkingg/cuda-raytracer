@@ -2,13 +2,16 @@
 
 #include <glm/glm.hpp>
 #include "Hittable.h"
+#include "Material.h"
 
 class Sphere : public Hittable {
 public:
 	glm::vec3 center;
 	float radius;
+	Material* mat_ptr;
+
 	__device__ Sphere() {}
-	__device__ Sphere(glm::vec3 center, float radius) : center(center), radius(radius) {}
+	__device__ Sphere(glm::vec3 center, float radius, Material* mat_ptr) : center(center), radius(radius), mat_ptr(mat_ptr) {}
 	__device__ virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
 };
 
@@ -24,7 +27,8 @@ __device__ bool Sphere::hit(const Ray& r, float t_min, float t_max, HitRecord& r
 		if (temp > t_min && temp < t_max) {
 			rec.t = temp;
 			rec.p = r.at(rec.t);
-			rec.normal = (rec.p - center) / radius;
+			rec.set_face_normal(r, (rec.p - center) / radius);
+			rec.mat_ptr = mat_ptr;
 			return true;
 		}
 
@@ -32,7 +36,8 @@ __device__ bool Sphere::hit(const Ray& r, float t_min, float t_max, HitRecord& r
 		if (temp > t_min && temp < t_max) {
 			rec.t = temp;
 			rec.p = r.at(rec.t);
-			rec.normal = (rec.p - center) / radius;
+			rec.set_face_normal(r, (rec.p - center) / radius);
+			rec.mat_ptr = mat_ptr;
 			return true;
 		}
 	}

@@ -23,4 +23,12 @@ public:
 		lower_left_corner = origin - horizontal / 2.0f - vertical / 2.0f - glm::vec3(0, 0, focal_length);
 	}
 	__device__ Ray getRay(float u, float v) { return Ray(origin, lower_left_corner + u * horizontal + v * vertical - origin); }
+	/*__device__ void setPosition(glm::vec3 pos) {
+		origin = pos;
+	}
+	__device__ void setLookat(glm::vec3 horizontal, glm::vec3 vertical, glm::vec3 lower_left_corner) {
+		horizontal = horizontal;
+		vertical = vertical;
+		lower_left_corner = lower_left_corner;
+	}*/
 };

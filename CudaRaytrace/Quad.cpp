@@ -48,11 +48,6 @@ Quad::Quad(unsigned int width, unsigned int height) {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, PBO);
     glBufferData(GL_PIXEL_UNPACK_BUFFER, width * height * 4, NULL, GL_DYNAMIC_COPY);
 
-    checkCudaErrors(
-        cudaGraphicsGLRegisterBuffer(&CGR, 
-                                    PBO, 
-                                    cudaGraphicsRegisterFlagsNone));
-
     glEnable(GL_TEXTURE_2D);
 
     glGenTextures(1, &texture);
@@ -67,10 +62,26 @@ Quad::Quad(unsigned int width, unsigned int height) {
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
     glBindTexture(GL_TEXTURE_2D, 0);
-
-
-    renderer = kernelInfo(this->CGR, width, height);
 }   
+
+void Quad::cudaInit(unsigned int width, unsigned int height) {
+    checkCudaErrors(
+        cudaGraphicsGLRegisterBuffer(&CGR,
+            PBO,
+            cudaGraphicsRegisterFlagsNone));
+    renderer = kernelInfo(this->CGR, width, height);
+}
+
+void Quad::makeFBO() {
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Quad::setTexUniforms(unsigned int otherTex) {
+
+}
 
 void Quad::renderKernel(unsigned int width, unsigned int height) {
     glBindTexture(GL_TEXTURE_2D, 0);

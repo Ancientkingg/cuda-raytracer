@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <FxCompile Include="shaders\rendertype_screen.vsh" />
+    <FxCompile Include="shaders\rendertype_accumulate.vsh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cuda_errors.cpp" />
@@ -41,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\rendertype_screen.fsh" />
+    <None Include="shaders\rendertype_accumulate.fsh" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Raytracer">

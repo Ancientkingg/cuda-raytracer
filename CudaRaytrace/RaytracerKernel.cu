@@ -22,20 +22,20 @@ __global__ void create_world(Hittable** d_list, unsigned int d_list_size, Hittab
 	if (threadIdx.x == 0 && blockIdx.x == 0) {
 		d_list[0] = new Sphere(glm::vec3(0, 0, -1), 0.5f, new Lambertian(glm::vec3(0.8f,0.3f,0.3f)));
 		d_list[1] = new Sphere(glm::vec3(0, -100.5, -1), 100.0f, new Lambertian(glm::vec3(0.8f, 0.8f, 0.0f)));
-		d_list[2] = new Sphere(glm::vec3(-1, 0, -1), 0.5f, new Dielectric(1.5f));
-		d_list[3] = new Sphere(glm::vec3(-1, 0, -1), -0.4f, new Dielectric(1.5f));
+		d_list[2] = new Sphere(glm::vec3(-1.01, 0, -1), 0.5f, new Dielectric(1.5f));
+		d_list[3] = new Sphere(glm::vec3(-1, 10, -1), 0.5f, new Dielectric(1.5f));
 		d_list[4] = new Sphere(glm::vec3(1, 0, -1), 0.5f, new Metal(glm::vec3(0.8f, 0.8f, 0.8f), 0.3f));
 		*d_world = new World(d_list, d_list_size);
 		*d_camera = camera_info.constructCamera();
 	}
 }
 
-//__global__ void set_camera(Camera** d_camera, glm::vec3 position, glm::vec3 horizontal, glm::vec3 vertical, glm::vec3 lower_left_corner) {
-//	if (threadIdx.x == 0 && blockIdx.x == 0) {
-//		(*d_camera)->setPosition(position);
-//		(*d_camera)->setLookat(horizontal, vertical, lower_left_corner);
-//	}
-//}
+__global__ void set_camera(Camera** d_camera, glm::vec3 position, glm::vec3 forward, glm::vec3 up) {
+	if (threadIdx.x == 0 && blockIdx.x == 0) {
+		(*d_camera)->setPosition(position);
+		(*d_camera)->setRotation(forward, up);
+	}
+}
 
 __global__ void free_world(Hittable** d_list, unsigned int d_list_size, Hittable** d_world, Camera** d_camera) {
 	for (int i = 0; i < d_list_size; i++) {
@@ -70,7 +70,7 @@ __global__ void raytrace(frameBuffer fb, Hittable** world, Camera** camera, cura
 	glm::vec3 col = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	// samples
-	int ns = 3;
+	const int ns = 3;
 
 	for (int s = 0; s < ns; s++) {
 		// normalized screen coordinates
@@ -113,6 +113,12 @@ kernelInfo::kernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 	dim3 blocks(nx / tx + 1, ny / ty + 1);
 	dim3 threads(tx, ty);
 	render_init << <blocks, threads >> > (nx, ny, d_rand_state);
+	checkCudaErrors(cudaGetLastError());
+	checkCudaErrors(cudaDeviceSynchronize());
+}
+
+void kernelInfo::setCamera(glm::vec3 position, glm::vec3 forward, glm::vec3 up) {
+	set_camera << <1, 1 >> > (d_camera, position, forward, up);
 	checkCudaErrors(cudaGetLastError());
 	checkCudaErrors(cudaDeviceSynchronize());
 }

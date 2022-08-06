@@ -91,7 +91,6 @@ public:
 		attenuation = glm::vec3(1.0f, 1.0f, 1.0f);
 		float refraction_ratio = rec.front_face ? (1.0f / ir) : ir;
 		glm::vec3 unit_direction = glm::normalize(r_in.direction);
-		glm::vec3 refracted = refract(unit_direction, rec.normal, refraction_ratio);
 
 		float cos_theta = fminf(glm::dot(-unit_direction, rec.normal), 1.0);
 		float sin_theta = sqrtf(1.0f - cos_theta * cos_theta);

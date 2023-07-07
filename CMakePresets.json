@@ -36,6 +36,17 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
+        },
+        {
+            "name": "CI/CD-release",
+            "displayName": "CI/CD Release",
+            "inherits": "x64-debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            },
+            "environment": {
+              "CUDA_ARCHITECTURES": "70"
+            }
         }
     ]
 }

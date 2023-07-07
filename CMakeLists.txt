@@ -29,7 +29,7 @@ file(GLOB_RECURSE HEADER_FILES
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
 # Set CUDA architecture to the host's GPU architecture
-set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_ARCHITECTURES native)
+set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_ARCHITECTURES 70)
 
 # Add .lib files
 link_directories(${CMAKE_SOURCE_DIR}/lib)

@@ -78,8 +78,7 @@ The next step was to make the camera rotatable and movable, so that we can actua
 The camera supports WASD to move horizontally, Q and E to roll the camera, and, CTRL and SPACE to move vertically.
 It uses a sort of motion based system to move the camera, which makes the movement feel somewhat natural.
 
-<video src="/docs/videos/moving_camera.mp4" controls style="max-width: 360px;">
-</video>
+https://github.com/Ancientkingg/CudaRaytrace/assets/67058024/333f98e2-c043-4ecf-881c-7044380091dd
 
 The video above is a recording of the window with a resolution of 800x600 with 3 samples per pixel.
 It runs at about 80-100 fps on my machine with an RTX 3070. Even though each pixel samples 3 rays, there is still some
@@ -101,12 +100,12 @@ To implement temporal accumulation I decided to make use of the shader pipeline 
 The ray tracing kernel will continuously output frames to a buffer, which will then be used as a texture by OpenGL to draw to the screen.
 A second buffer is used to accumulate frames. This buffer is also used as a texture, but it is not drawn directly to the screen.
 
-<video src="/docs/videos/accumulate_frames.mp4" controls style="max-width: 360px;">
-</video>
+https://github.com/Ancientkingg/CudaRaytrace/assets/67058024/0c14d1b8-510c-4a97-b8dc-bf65aa019d9d
 
 As you can see after a set amount of time the image seems to clear up and the noise starts to fade away.
 The accumulated frames are discarded as soon as the camera moves or rotates, so that we don't get a blurry mess like this:
 
-<video src="/docs/videos/ghosting_frames.mp4" controls style="max-width: 360px;">
+https://github.com/Ancientkingg/CudaRaytrace/assets/67058024/79fe5447-ee7f-42bf-9b3d-b24015b5a090
+
 
 

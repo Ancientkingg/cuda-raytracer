@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: windows-2019
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Enable Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1.12.1
+    
+    # Install latest CMake and Ninja.
+    - uses: lukka/get-cmake@latest
+      # Or pin to a specific CMake version:
+      # lukka/get-cmake@v3.21.2
+    
+    - name: cuda-toolkit
+      uses: Jimver/cuda-toolkit@v0.2.11
+      with:
+        cuda: 12.2.0
+        sub-packages: '["nvcc", "visual_studio_integration", "curand", "curand_dev", "cudart"]'
+        method: network
+
+    - name: Run CMake consuming CMakePresets.json
+      uses: lukka/run-cmake@v10
+      with:
+        configurePreset: 'CI/CD-release'
+

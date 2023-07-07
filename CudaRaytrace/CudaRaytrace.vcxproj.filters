@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <FxCompile Include="shaders\rendertype_screen.vsh" />
+    <FxCompile Include="shaders\rendertype_accumulate.vsh" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cuda_errors.cpp" />
+    <ClCompile Include="glad.c" />
+    <ClCompile Include="input.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Quad.cpp" />
+    <ClCompile Include="Window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cuda_errors.h" />
+    <ClInclude Include="input.h" />
+    <ClInclude Include="Quad.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="Window.h" />
+    <ClInclude Include="RaytracerKernel.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBuffer.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
+    <ClInclude Include="Hittable.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Raytracer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\rendertype_screen.fsh" />
+    <None Include="shaders\rendertype_accumulate.fsh" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Raytracer">
+      <UniqueIdentifier>{e23cf244-4a73-4310-b817-6b85e82de709}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="RaytracerKernel.cu">
+      <Filter>Raytracer</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Ray.h">
+      <Filter>Raytracer</Filter>
+    </CudaCompile>
+  </ItemGroup>
+</Project>

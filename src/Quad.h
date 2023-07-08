@@ -7,6 +7,7 @@
 #include "raytracer/kernel.h"
 
 #include <vector>
+#include <memory>
 
 class Quad {
 public:
@@ -15,7 +16,7 @@ public:
 
 	unsigned int texture;
 	unsigned int PBO; // pixel buffer object
-	kernelInfo renderer;
+	std::unique_ptr<kernelInfo> _renderer;
 	unsigned int framebuffer;
 
 	cudaGraphicsResource_t CGR;

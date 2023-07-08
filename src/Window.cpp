@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <memory>
 
 Window::Window(uint32_t width, uint32_t height) {
 	Window::width = width;
@@ -65,16 +66,16 @@ int Window::init_framebuffer() {
 
 int Window::init_quad() {
 	
-	_blit_quad = new Quad(Window::width, Window::height);
+	_blit_quad = std::make_unique<Quad>(Window::width, Window::height);
 	_blit_quad->makeFBO();
 
-	_shader = new Shader("./shaders/rendertype_screen.vert", "./shaders/rendertype_screen.frag");
-	_current_frame = new Quad(Window::width, Window::height);
+	_shader = std::make_unique<Shader>("./shaders/rendertype_screen.vert", "./shaders/rendertype_screen.frag");
+	_current_frame = std::make_unique<Quad>(Window::width, Window::height);
 	_current_frame->cudaInit(Window::width, Window::height);
 	_current_frame->makeFBO();
 
-	_accum_shader = new Shader("./shaders/rendertype_accumulate.vert", "./shaders/rendertype_accumulate.frag");
-	_accum_frame = new Quad(Window::width, Window::height);
+	_accum_shader = std::make_unique<Shader>("./shaders/rendertype_accumulate.vert", "./shaders/rendertype_accumulate.frag");
+	_accum_frame = std::make_unique<Quad>(Window::width, Window::height);
 	_accum_frame->makeFBO();
 
 	_accum_shader->use();
@@ -111,7 +112,7 @@ void Window::destroy() {
 void Window::tick_input(float t_diff) {
 	//input
 	_input.processQuit(_window);
-	_input.processCameraMovement(_window, _current_frame->renderer, t_diff);
+	_input.processCameraMovement(_window, *(_current_frame->_renderer), t_diff);
 	if (_input.hasCameraMoved()) _frame_count = 1;
 }
 

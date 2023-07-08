@@ -11,6 +11,8 @@
 #include "raytracer/kernel.h"
 #include "cuda_errors.h"
 
+#include <memory>
+
 Quad::Quad(unsigned int width, unsigned int height) {
 
     vertices = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
@@ -65,12 +67,14 @@ Quad::Quad(unsigned int width, unsigned int height) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+
 void Quad::cudaInit(unsigned int width, unsigned int height) {
+    std::cout << "Called cuda init" << "\n";
     checkCudaErrors(
         cudaGraphicsGLRegisterBuffer(&CGR,
             PBO,
             cudaGraphicsRegisterFlagsNone));
-    renderer = kernelInfo(this->CGR, width, height);
+    _renderer = std::make_unique<kernelInfo>(this->CGR, width, height);
 }
 
 void Quad::makeFBO() {
@@ -80,13 +84,9 @@ void Quad::makeFBO() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Quad::setTexUniforms(unsigned int otherTex) {
-
-}
-
 void Quad::renderKernel(unsigned int width, unsigned int height) {
     glBindTexture(GL_TEXTURE_2D, 0);
-    renderer.render(width, height);
+    _renderer->render(width, height);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, this->PBO);
     glBindTexture(GL_TEXTURE_2D, this->texture);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, NULL);

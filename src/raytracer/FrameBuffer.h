@@ -52,9 +52,4 @@ public:
 		}
 		return glm::vec3(0.0f, 0.0f, 0.0f);
 	}
-
-	__host__ void free() {
-		checkCudaErrors(cudaFree(this->device_ptr));
-		checkCudaErrors(cudaFree(this));
-	}
 };

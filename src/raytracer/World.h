@@ -26,12 +26,3 @@ __device__ bool World::hit(const Ray& r, float t_min, float t_max, HitRecord& re
     }
     return hitAnything;
 }
-
-// A makeshift destructor for the World class
-__device__ void World::destroy() {
-	for (int i = 0; i < list_size; i++) {
-		free (list[i]);
-	}
-	delete[] list;
-    delete this;
-}

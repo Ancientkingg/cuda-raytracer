@@ -19,11 +19,12 @@ public:
 	void destroy();
 private:
 	GLFWwindow* _window;
-	Shader* _shader;
-	Shader* _accum_shader;
-	Quad* _blit_quad;
-	Quad* _accum_frame;
-	Quad* _current_frame;
+
+	std::unique_ptr<Shader> _shader;
+	std::unique_ptr<Shader> _accum_shader;
+	std::unique_ptr<Quad> _blit_quad;
+	std::unique_ptr<Quad> _accum_frame;
+	std::unique_ptr<Quad> _current_frame;
 
 	int init_glad();
 	int init_glfw();

@@ -5,8 +5,6 @@
 #include <curand_kernel.h>
 #include "Hittable.h"
 
-extern void kernel(cudaGraphicsResource_t resources, int nx, int ny);
-
 struct kernelInfo {
     size_t buffer_size;
     Camera** d_camera;
@@ -18,8 +16,8 @@ struct kernelInfo {
     CameraInfo camera_info;
 
     kernelInfo() {}
+    ~kernelInfo();
     kernelInfo(cudaGraphicsResource_t resources, int nx, int ny);
     void setCamera(glm::vec3 position, glm::vec3 forward, glm::vec3 up);
     void render(int nx, int ny);
-    void destroy();
 };

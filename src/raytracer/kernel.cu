@@ -90,13 +90,13 @@ kernelInfo::kernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 
 	camera_info = CameraInfo(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, nx, ny);
 
-	checkCudaErrors(cudaMalloc((void**)&d_camera, sizeof(Camera*)));
+	checkCudaErrors(cudaMalloc((void**)&d_camera, sizeof(Camera)));
 
 	checkCudaErrors(cudaMalloc((void**)&d_rand_state, nx * ny * sizeof(curandState)));
 
 	list_size = 5;
 
-	checkCudaErrors(cudaMalloc((void**)&d_list, list_size * sizeof(Hittable*)));
+	checkCudaErrors(cudaMalloc((void**)&d_list, list_size * sizeof(Hittable)));
 
 	checkCudaErrors(cudaMalloc((void**)&d_world, sizeof(Hittable*)));
 	create_world<<<1, 1>>> (d_list, list_size, d_world, d_camera, camera_info);

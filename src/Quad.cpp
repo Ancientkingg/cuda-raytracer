@@ -69,7 +69,6 @@ Quad::Quad(unsigned int width, unsigned int height) {
 
 
 void Quad::cudaInit(unsigned int width, unsigned int height) {
-    std::cout << "Called cuda init" << "\n";
     checkCudaErrors(
         cudaGraphicsGLRegisterBuffer(&CGR,
             PBO,

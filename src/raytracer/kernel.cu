@@ -147,7 +147,6 @@ __global__ void free_scene(Hittable** d_list, Hittable** d_world, Camera** d_cam
 }
 
 kernelInfo::~kernelInfo() {
-	std::cout << "Destructor for kernel info is called" << std::endl;
 	checkCudaErrors(cudaDeviceSynchronize());
 
 	free_scene<<<1, 1>>> (d_list, d_world, d_camera);

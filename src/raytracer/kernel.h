@@ -15,7 +15,8 @@ struct kernelInfo {
 
     Hittable** d_list;
     unsigned int list_size;
-    Hittable** d_world;
+    
+    thrust::device_ptr<Hittable*> d_world;
 
     cudaGraphicsResource_t resources;
     CameraInfo camera_info;

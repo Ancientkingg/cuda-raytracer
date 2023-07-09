@@ -8,7 +8,6 @@
 #include <thrust/device_ptr.h>
 
 struct kernelInfo {
-    size_t buffer_size;
 
     thrust::device_ptr<Camera*> d_camera;
     thrust::device_ptr<curandState> d_rand_state;
@@ -18,9 +17,12 @@ struct kernelInfo {
     cudaGraphicsResource_t resources;
     CameraInfo camera_info;
 
+    int nx, ny;
+
     kernelInfo() {}
     ~kernelInfo();
     kernelInfo(cudaGraphicsResource_t resources, int nx, int ny);
     void setCamera(glm::vec3 position, glm::vec3 forward, glm::vec3 up);
-    void render(int nx, int ny);
+    void render();
+    void resize(int nx, int ny);
 };

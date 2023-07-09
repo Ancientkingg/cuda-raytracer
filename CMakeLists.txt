@@ -97,13 +97,19 @@ endif()
 
 
 function(CUDA_CONVERT_FLAGS EXISTING_TARGET)
-    get_property(old_flags TARGET ${EXISTING_TARGET} PROPERTY INTERFACE_COMPILE_OPTIONS)
-    if(NOT "${old_flags}" STREQUAL "")
-        string(REPLACE ";" "," CUDA_flags "${old_flags}")
-        set_property(TARGET ${EXISTING_TARGET} PROPERTY INTERFACE_COMPILE_OPTIONS
-            "$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CXX>>:${old_flags}>$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CUDA>>:-Xcompiler=${CUDA_flags}>"
-            )
-    endif()
+	get_property(old_flags TARGET ${EXISTING_TARGET} PROPERTY INTERFACE_COMPILE_OPTIONS)
+	if(NOT "${old_flags}" STREQUAL "")
+		string(REPLACE ";" "," CUDA_flags "${old_flags}")
+		set_property(TARGET ${EXISTING_TARGET} PROPERTY INTERFACE_COMPILE_OPTIONS
+			"$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CXX>>:${old_flags}>$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CUDA>>:-Xcompiler=${CUDA_flags}>"
+			)
+	endif()
 endfunction()
 
 CUDA_CONVERT_FLAGS(${PROJECT_NAME})
+
+# check for cache variable set in cmakepresets called IS_CUDA_DEBUG
+if(IS_CUDA_DEBUG) 
+	target_compile_options(${PROJECT_NAME} PRIVATE "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>>:-G>")
+	message(STATUS "CUDA_DEBUG is ON")
+endif()

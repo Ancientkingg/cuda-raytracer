@@ -1,0 +1,2 @@
+[0709/144726.234:ERROR:component_installer.cc(349)] Failed to read manifest or verify installation for Widevine Content Decryption Module (C:\Users\Familie\AppData\Local\CEF\User Data\WidevineCdm\4.10.2557.0).: The system cannot find the path specified. (0x3)
+[0709/144926.497:ERROR:gpu_init.cc(453)] Passthrough is not supported, GL is disabled, ANGLE is 

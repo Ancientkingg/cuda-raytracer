@@ -107,5 +107,10 @@ The accumulated frames are discarded as soon as the camera moves or rotates, so 
 
 https://github.com/Ancientkingg/CudaRaytrace/assets/67058024/79fe5447-ee7f-42bf-9b3d-b24015b5a090
 
-
+### Improving code quality
+At this point in the project, I realized that the code quality was not very good. 
+At the start of this project I was still very novice in writing actual C++ code, which resulted in a lot of bad practices.
+Particularly, the high usage of raw pointers and the lack of proper memory management was a big problem.
+Before continuing with the project, I decided to try to rewrite the code to improve memory management and to make the code more readable.
+I started making use of smart pointers and of the [thrust](https://thrust.github.io/) library to manage memory.
 

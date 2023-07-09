@@ -22,11 +22,14 @@ public:
 	cudaGraphicsResource_t CGR;
 	cudaArray_t CA;
 
+	unsigned int width, height;
+
 	std::vector<float> vertices;
 	Quad(unsigned int width, unsigned int height);
 
-	void cudaInit(unsigned int width, unsigned int height);
-	void renderKernel(unsigned int width, unsigned int height);
+	void cudaInit();
+	void renderKernel();
+	void resize(unsigned int width, unsigned int height);
 	void setTexUniforms(unsigned int otherTex);
 	void makeFBO();
 };

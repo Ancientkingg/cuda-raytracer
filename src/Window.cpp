@@ -22,6 +22,8 @@ int Window::init_glfw() {
 	// Hides the cursor and captures it
 	glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+	glfwSetWindowUserPointer(_window, reinterpret_cast<void*>(this));
+
 	// Check if window was created
 	if (_window == NULL) {
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -45,13 +47,20 @@ int Window::init_glad() {
 	return 0;
 }
 
+void Window::resize(unsigned int w, unsigned int h) {
+	this->width = w;
+	this->height = h;
+	this->_current_frame->resize(w, h);
+	this->_accum_frame->resize(w, h);
+	this->_blit_quad->resize(w, h);
+}
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	// resize the frame buffer
 	glViewport(0, 0, width, height);
 	Window* myWindow = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
 
-	myWindow->width = width;
-	myWindow->height = height;
+	myWindow->resize(width, height);
 }
 
 int Window::init_framebuffer() {
@@ -71,7 +80,7 @@ int Window::init_quad() {
 
 	_shader = std::make_unique<Shader>("./shaders/rendertype_screen.vert", "./shaders/rendertype_screen.frag");
 	_current_frame = std::make_unique<Quad>(Window::width, Window::height);
-	_current_frame->cudaInit(Window::width, Window::height);
+	_current_frame->cudaInit();
 	_current_frame->makeFBO();
 
 	_accum_shader = std::make_unique<Shader>("./shaders/rendertype_accumulate.vert", "./shaders/rendertype_accumulate.frag");
@@ -110,14 +119,14 @@ void Window::destroy() {
 }
 
 void Window::tick_input(float t_diff) {
+
 	//input
 	_input.processQuit(_window);
 	_input.processCameraMovement(_window, *(_current_frame->_renderer), t_diff);
 	if (_input.hasCameraMoved()) _frame_count = 1;
 }
 
-void copyFrameBufferTexture(int width, int height, int fboIn, int textureIn, int fboOut, int textureOut)
-{
+void copyFrameBufferTexture(int width, int height, int fboIn, int textureIn, int fboOut, int textureOut) {
 	// Bind input FBO + texture to a color attachment
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, fboIn);
 	glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureIn, 0);
@@ -147,7 +156,7 @@ void Window::tick_render() {
 
 	// Render current frame
 	glBindFramebuffer(GL_FRAMEBUFFER, _current_frame->framebuffer);
-	_current_frame->renderKernel(Window::width, Window::height);
+	_current_frame->renderKernel();
 	_shader->use();
 	glBindVertexArray(_current_frame->VAO);
 	glBindTexture(GL_TEXTURE_2D, _current_frame->texture);

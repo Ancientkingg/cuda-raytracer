@@ -17,6 +17,7 @@ public:
 
 	int init();
 	void destroy();
+	void resize(unsigned int width, unsigned int height);
 private:
 	GLFWwindow* _window;
 
@@ -39,5 +40,4 @@ private:
 	void tick_input(float t_diff);
 	void tick_render();
 	void tick();
-
 };

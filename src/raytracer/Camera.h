@@ -34,11 +34,14 @@ public:
 		origin = origin;
 		lower_left_corner = origin - horizontal / 2.0f - vertical / 2.0f - w;
 	}
-	__device__ Ray getRay(float u, float v) { return Ray(origin, lower_left_corner + u * horizontal + v * vertical - origin); }
-	__device__ void setPosition(glm::vec3 pos) {
+
+	__device__ Ray get_ray(float u, float v) { return Ray(origin, lower_left_corner + u * horizontal + v * vertical - origin); }
+	__device__ void set_position(glm::vec3 pos) {
 		origin = pos;
 	}
-	__device__ void setRotation(glm::vec3 forward, glm::vec3 up) {
+	__device__ void set_rotation(glm::vec3 forward, glm::vec3 up, float aspect_ratio) {
+		viewport_width = aspect_ratio * viewport_height;
+
 		glm::vec3 w = forward;
 		glm::vec3 v = up;
 		glm::vec3 u = glm::cross(v, w);
@@ -61,7 +64,7 @@ struct CameraInfo { // used to pass all necessary information to the gpu to cons
 
 	__host__ CameraInfo(glm::vec3 o, glm::vec3 r, float f, float w, float h) : origin(o), rotation(r), fov(f), width(w), height(h) {}
 
-	__device__ Camera* constructCamera() {
+	__device__ Camera* construct_camera() {
 		float A = degrees_to_radians(rotation.x);
 		float B = degrees_to_radians(rotation.y);
 		float C = degrees_to_radians(rotation.z);

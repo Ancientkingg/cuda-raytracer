@@ -14,6 +14,8 @@
 #include <memory>
 
 Quad::Quad(unsigned int width, unsigned int height) {
+    this->width = width;
+    this->height = height;
 
     vertices = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
         // positions   // texCoords
@@ -50,6 +52,7 @@ Quad::Quad(unsigned int width, unsigned int height) {
     glGenBuffers(1, &PBO);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, PBO);
     glBufferData(GL_PIXEL_UNPACK_BUFFER, width * height * 4, NULL, GL_DYNAMIC_COPY);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
     glEnable(GL_TEXTURE_2D);
 
@@ -68,7 +71,7 @@ Quad::Quad(unsigned int width, unsigned int height) {
 }
 
 
-void Quad::cudaInit(unsigned int width, unsigned int height) {
+void Quad::cudaInit() {
     checkCudaErrors(
         cudaGraphicsGLRegisterBuffer(&CGR,
             PBO,
@@ -83,10 +86,37 @@ void Quad::makeFBO() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Quad::renderKernel(unsigned int width, unsigned int height) {
+void Quad::renderKernel() {
     glBindTexture(GL_TEXTURE_2D, 0);
-    _renderer->render(width, height);
+    _renderer->render();
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, this->PBO);
     glBindTexture(GL_TEXTURE_2D, this->texture);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+}
+
+void Quad::resize(unsigned int width, unsigned int height) {
+    this->width = width;
+    this->height = height;
+
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, PBO);
+    glBufferData(GL_PIXEL_UNPACK_BUFFER, width * height * 4, NULL, GL_DYNAMIC_COPY);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);    
+
+    if (_renderer != nullptr) {
+        checkCudaErrors(
+            cudaGraphicsGLRegisterBuffer(&CGR,
+                PBO,
+                cudaGraphicsRegisterFlagsNone));
+
+        _renderer->resources = this->CGR;
+        _renderer->resize(width, height);
+    }
 }

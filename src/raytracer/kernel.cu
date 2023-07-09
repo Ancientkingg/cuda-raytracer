@@ -143,7 +143,7 @@ void kernelInfo::render() {
 	frameBuffer fb(nx, ny);
 	size_t buffer_size;
 
-	checkCudaErrors(cudaGraphicsMapResources(1, &resources, NULL));
+	checkCudaErrors(cudaGraphicsMapResources(1, &resources));
 	checkCudaErrors(cudaGraphicsResourceGetMappedPointer((void**)&fb.device_ptr, &buffer_size, resources));
 
 	int tx = 8;
@@ -157,7 +157,7 @@ void kernelInfo::render() {
 	// wait for the gpu to finish
 	checkCudaErrors(cudaDeviceSynchronize());
 
-	checkCudaErrors(cudaGraphicsUnmapResources(1, &resources, NULL));
+	checkCudaErrors(cudaGraphicsUnmapResources(1, &resources));
 }
 
 __global__ void free_scene(thrust::device_ptr<World*> d_world, thrust::device_ptr<Camera*> d_camera) {

@@ -70,7 +70,6 @@ Quad::Quad(unsigned int width, unsigned int height) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-
 void Quad::cudaInit() {
     checkCudaErrors(
         cudaGraphicsGLRegisterBuffer(&CGR,
@@ -111,6 +110,9 @@ void Quad::resize(unsigned int width, unsigned int height) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);    
 
     if (_renderer != nullptr) {
+        checkCudaErrors(
+            cudaGraphicsUnregisterResource(CGR));
+
         checkCudaErrors(
             cudaGraphicsGLRegisterBuffer(&CGR,
                 PBO,

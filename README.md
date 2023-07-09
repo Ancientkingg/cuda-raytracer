@@ -109,8 +109,9 @@ https://github.com/Ancientkingg/CudaRaytrace/assets/67058024/79fe5447-ee7f-42bf-
 
 ### Improving code quality
 At this point in the project, I realized that the code quality was not very good. 
-At the start of this project I was still very novice in writing actual C++ code, which resulted in a lot of bad practices.
-Particularly, the high usage of raw pointers and the lack of proper memory management was a big problem.
+When I started writing this ray tracer I was still very novice in writing actual C++ code, which resulted in a lot of bad practices creeping into the code.
+Particularly, the high usage of raw device pointers and the lack of proper memory management was a big problem.
 Before continuing with the project, I decided to try to rewrite the code to improve memory management and to make the code more readable.
-I started making use of smart pointers and of the [thrust](https://thrust.github.io/) library to manage memory.
+
+I used valgrind and Nvidia's compute sanitizer to detect memory leaks and managed to fix all of them by using RAII.
 

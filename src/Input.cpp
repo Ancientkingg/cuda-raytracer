@@ -7,7 +7,7 @@
 #include "Input.h"
 
 
-#define M_PI 3.14159265358979323846264338327950288
+#define M_PI 3.14159265358979323846264338327950288f
 
 #define isPressed(x) glfwGetKey(window,x)==GLFW_PRESS 
 

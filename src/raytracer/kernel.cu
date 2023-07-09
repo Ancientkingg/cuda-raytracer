@@ -83,7 +83,7 @@ __global__ void render_init(int width, int height, thrust::device_ptr<curandStat
 kernelInfo::kernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 	this->resources = resources;
 
-	camera_info = CameraInfo(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, nx, ny);
+	camera_info = CameraInfo(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, (float) nx, (float) ny);
 
 	//checkCudaErrors(cudaMalloc((void**)&d_camera, sizeof(Camera)));
 	d_camera = thrust::device_new<Camera*>();

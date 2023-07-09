@@ -3,11 +3,11 @@
 #include "Ray.h"
 #include <glm/glm.hpp>
 
-#define M_PI   3.14159265358979323846264338327950288
+#define M_PI 3.14159265358979323846264338327950288f
 
 
 __device__ inline float degrees_to_radians(float angleInDegrees) {
-	return ((angleInDegrees)*M_PI / 180.0);
+	return ((angleInDegrees)*M_PI / 180.0f);
 }
 
 class Camera {

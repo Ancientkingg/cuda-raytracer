@@ -182,7 +182,7 @@ void Window::tick_render() {
 void Window::tick() {
 
 	std::chrono::steady_clock::time_point this_frame = std::chrono::steady_clock::now();
-	float t_diff = std::chrono::duration_cast<std::chrono::milliseconds>(this_frame - _last_frame).count();
+	float t_diff = (float) std::chrono::duration_cast<std::chrono::milliseconds>(this_frame - _last_frame).count();
 	_last_frame = this_frame;
 
 	// Print FPS

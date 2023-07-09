@@ -45,9 +45,6 @@ __device__ glm::vec3 refract(const glm::vec3& uv, const glm::vec3& n, float etai
 
 class Material {
 public:
-	__device__ ~Material() {
-		printf("Material destructor called\n");
-	}
 	__device__ virtual bool scatter(const Ray& r_in, const HitRecord& rec, glm::vec3& attenuation, Ray& scattered, curandState* local_rand_state) const = 0;
 };
 

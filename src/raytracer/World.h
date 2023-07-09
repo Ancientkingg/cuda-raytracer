@@ -65,7 +65,6 @@ public:
 #include "Sphere.h"
 
 __device__ World::~World() {
-    printf("World destructor has been called\n");
     for (int i = 0; i < number_of_objects; i++) {
         delete (Sphere*) objects[i];
     }

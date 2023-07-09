@@ -12,7 +12,6 @@ public:
 
 	__device__ Sphere() {}
 	__device__ ~Sphere() {
-		printf("Sphere destructor called\n");
 		delete mat_ptr;
 	}
 

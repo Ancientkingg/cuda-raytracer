@@ -3,7 +3,7 @@
 #include "Camera.h"
 #include "cuda_runtime.h"
 #include <curand_kernel.h>
-#include "Hittable.h"
+#include "World.h"
 
 #include <thrust/device_ptr.h>
 
@@ -16,7 +16,7 @@ struct kernelInfo {
     Hittable** d_list;
     unsigned int list_size;
     
-    thrust::device_ptr<Hittable*> d_world;
+    thrust::device_ptr<World*> d_world;
 
     cudaGraphicsResource_t resources;
     CameraInfo camera_info;

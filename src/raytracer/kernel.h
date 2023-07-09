@@ -11,7 +11,7 @@ struct kernelInfo {
     size_t buffer_size;
 
     thrust::device_ptr<Camera*> d_camera;
-    curandState* d_rand_state;
+    thrust::device_ptr<curandState> d_rand_state;
 
     Hittable** d_list;
     unsigned int list_size;

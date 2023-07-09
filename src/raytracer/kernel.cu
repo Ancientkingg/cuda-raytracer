@@ -21,7 +21,7 @@
 
 #include "raytracer/kernel.h"
 
-__global__ void raytrace(frameBuffer fb, Hittable** world, thrust::device_ptr<Camera*> d_camera, curandState* rand_state) {
+__global__ void raytrace(frameBuffer fb, Hittable** world, thrust::device_ptr<Camera*> d_camera, thrust::device_ptr<curandState> rand_state) {
 
 	// X AND Y coordinates
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
@@ -67,13 +67,13 @@ __global__ void create_world(Hittable** d_list, unsigned int d_list_size, Hittab
 	}
 }
 
-__global__ void render_init(int width, int height, curandState* rand_state) {
+__global__ void render_init(int width, int height, thrust::device_ptr<curandState> rand_state) {
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;
 	if ((i >= width) || (j >= height)) return;
 	int pixel_index = j * width + i;
 	//Each thread gets same seed, a different sequence number, no offset
-	curand_init(1984, pixel_index, 0, &rand_state[pixel_index]);
+	curand_init(1984, pixel_index, 0, &rand_state.get()[pixel_index]);
 }
 
 
@@ -84,8 +84,7 @@ kernelInfo::kernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 
 	//checkCudaErrors(cudaMalloc((void**)&d_camera, sizeof(Camera)));
 	d_camera = thrust::device_new<Camera*>();
-
-	checkCudaErrors(cudaMalloc((void**)&d_rand_state, nx * ny * sizeof(curandState)));
+	d_rand_state = thrust::device_new<curandState>(nx * ny);
 
 	list_size = 5;
 
@@ -157,7 +156,6 @@ kernelInfo::~kernelInfo() {
 
 	checkCudaErrors(cudaFree(d_list));
 	checkCudaErrors(cudaFree(d_world));
-	//checkCudaErrors(cudaFree(d_camera));
 	thrust::device_free(d_camera);
-	checkCudaErrors(cudaFree(d_rand_state));
+	thrust::device_free(d_rand_state);
 }

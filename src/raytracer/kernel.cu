@@ -55,14 +55,17 @@ __global__ void raytrace(frameBuffer fb, thrust::device_ptr<World*> world, thrus
 	fb.writePixel(i, j, glm::vec4(col, 1.0f));
 }
 
-__global__ void create_world(Hittable** d_list, unsigned int d_list_size, thrust::device_ptr<World*> d_world, thrust::device_ptr<Camera*> d_camera, CameraInfo camera_info) {
+__global__ void create_world(thrust::device_ptr<World*> d_world, thrust::device_ptr<Camera*> d_camera, CameraInfo camera_info) {
 	if (threadIdx.x == 0 && blockIdx.x == 0) {
-		d_list[0] = new Sphere(glm::vec3(0, 0, -1), 0.5f, new Lambertian(glm::vec3(0.8f, 0.3f, 0.3f)));
-		d_list[1] = new Sphere(glm::vec3(0, -100.5, -1), 100.0f, new Lambertian(glm::vec3(0.8f, 0.8f, 0.0f)));
-		d_list[2] = new Sphere(glm::vec3(-1.01, 0, -1), 0.5f, new Dielectric(1.5f));
-		d_list[3] = new Sphere(glm::vec3(-1, 10, -1), 0.5f, new Dielectric(1.5f));
-		d_list[4] = new Sphere(glm::vec3(1, 0, -1), 0.5f, new Metal(glm::vec3(0.8f, 0.8f, 0.8f), 0.3f));
-		*d_world = new World(d_list, d_list_size);
+		*d_world = new World();
+		World* device_world = *d_world;
+
+		device_world->add(new Sphere(glm::vec3(0, 0, -1), 0.5f, new Lambertian(glm::vec3(0.8f, 0.3f, 0.3f))));
+		device_world->add(new Sphere(glm::vec3(0, -100.5, -1), 100.0f, new Lambertian(glm::vec3(0.8f, 0.8f, 0.0f))));
+		device_world->add(new Sphere(glm::vec3(-1.01, 0, -1), 0.5f, new Dielectric(1.5f)));
+		device_world->add(new Sphere(glm::vec3(-1, 10, -1), 0.5f, new Dielectric(1.5f)));
+		device_world->add(new Sphere(glm::vec3(1, 0, -1), 0.5f, new Metal(glm::vec3(0.8f, 0.8f, 0.8f), 0.3f)));
+
 		*d_camera = camera_info.constructCamera();
 	}
 }
@@ -86,13 +89,9 @@ kernelInfo::kernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 	d_camera = thrust::device_new<Camera*>();
 	d_rand_state = thrust::device_new<curandState>(nx * ny);
 
-	list_size = 5;
-
-	checkCudaErrors(cudaMalloc((void**)&d_list, list_size * sizeof(Hittable)));
-
 	d_world = thrust::device_new<World*>();
 
-	create_world<<<1, 1>>> (d_list, list_size, d_world, d_camera, camera_info);
+	create_world<<<1, 1>>> (d_world, d_camera, camera_info);
 
 	checkCudaErrors(cudaGetLastError());
 	checkCudaErrors(cudaDeviceSynchronize());
@@ -140,12 +139,7 @@ void kernelInfo::render(int nx, int ny) {
 	checkCudaErrors(cudaGraphicsUnmapResources(1, &resources, NULL));
 }
 
-__global__ void free_scene(Hittable** d_list, thrust::device_ptr<World*> d_world, thrust::device_ptr<Camera*> d_camera) {
-	for (int i = 0; i < 5; i++) {
-		delete ((Sphere*)d_list[i])->mat_ptr;
-		delete d_list[i];
-	}
-
+__global__ void free_scene(thrust::device_ptr<World*> d_world, thrust::device_ptr<Camera*> d_camera) {
 	delete* d_world;
 	delete* d_camera;
 }
@@ -153,9 +147,8 @@ __global__ void free_scene(Hittable** d_list, thrust::device_ptr<World*> d_world
 kernelInfo::~kernelInfo() {
 	checkCudaErrors(cudaDeviceSynchronize());
 
-	free_scene<<<1, 1>>> (d_list, d_world, d_camera);
+	free_scene<<<1, 1>>> (d_world, d_camera);
 
-	checkCudaErrors(cudaFree(d_list));
 	thrust::device_free(d_world);
 	thrust::device_free(d_camera);
 	thrust::device_free(d_rand_state);

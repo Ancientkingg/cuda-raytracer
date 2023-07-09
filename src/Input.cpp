@@ -1,8 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include "raytracer/Camera.h"
-#include "raytracer/kernel.h"
+
 #include <glm/glm.hpp>
 
 #include "Input.h"

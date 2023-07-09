@@ -12,9 +12,6 @@ struct kernelInfo {
 
     thrust::device_ptr<Camera*> d_camera;
     thrust::device_ptr<curandState> d_rand_state;
-
-    Hittable** d_list;
-    unsigned int list_size;
     
     thrust::device_ptr<World*> d_world;
 

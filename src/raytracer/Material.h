@@ -8,9 +8,6 @@ struct HitRecord;
 #include "Ray.h"
 #include "Hittable.h"
 
-
-
-
 #define RANDVEC3 glm::vec3(curand_uniform(local_rand_state),curand_uniform(local_rand_state),curand_uniform(local_rand_state))
 
 __device__ glm::vec3 random_in_unit_sphere(curandState* local_rand_state) {
@@ -48,6 +45,9 @@ __device__ glm::vec3 refract(const glm::vec3& uv, const glm::vec3& n, float etai
 
 class Material {
 public:
+	__device__ ~Material() {
+		printf("Material destructor called\n");
+	}
 	__device__ virtual bool scatter(const Ray& r_in, const HitRecord& rec, glm::vec3& attenuation, Ray& scattered, curandState* local_rand_state) const = 0;
 };
 

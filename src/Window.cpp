@@ -4,9 +4,10 @@
 #include <iomanip>
 #include <memory>
 
-Window::Window(uint32_t width, uint32_t height) {
+Window::Window(unsigned int width, unsigned int height) {
 	Window::width = width;
 	Window::height = height;
+	Window::_frame_count = 0;
 }
 
 int Window::init_glfw() {

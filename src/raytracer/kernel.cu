@@ -16,9 +16,12 @@
 #include "World.h"
 #include "Camera.h"
 
+#include <thrust/device_new.h>
+#include <thrust/device_free.h>
+
 #include "raytracer/kernel.h"
 
-__global__ void raytrace(frameBuffer fb, Hittable** world, Camera** camera, curandState* rand_state) {
+__global__ void raytrace(frameBuffer fb, Hittable** world, thrust::device_ptr<Camera*> d_camera, curandState* rand_state) {
 
 	// X AND Y coordinates
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
@@ -40,7 +43,7 @@ __global__ void raytrace(frameBuffer fb, Hittable** world, Camera** camera, cura
 		// normalized screen coordinates
 		float u = float(i + curand_uniform(&local_rand_state)) / float(fb.width);
 		float v = float(j + curand_uniform(&local_rand_state)) / float(fb.height);
-		Ray r = (*camera)->getRay(u, v);
+		Ray r = ((Camera*)(*d_camera))->getRay(u, v);
 		col += fb.color(r, *world, &local_rand_state);
 	}
 	rand_state[pixel_idx] = local_rand_state;
@@ -52,7 +55,7 @@ __global__ void raytrace(frameBuffer fb, Hittable** world, Camera** camera, cura
 	fb.writePixel(i, j, glm::vec4(col, 1.0f));
 }
 
-__global__ void create_world(Hittable** d_list, unsigned int d_list_size, Hittable** d_world, Camera** d_camera, CameraInfo camera_info) {
+__global__ void create_world(Hittable** d_list, unsigned int d_list_size, Hittable** d_world, thrust::device_ptr<Camera*> d_camera, CameraInfo camera_info) {
 	if (threadIdx.x == 0 && blockIdx.x == 0) {
 		d_list[0] = new Sphere(glm::vec3(0, 0, -1), 0.5f, new Lambertian(glm::vec3(0.8f, 0.3f, 0.3f)));
 		d_list[1] = new Sphere(glm::vec3(0, -100.5, -1), 100.0f, new Lambertian(glm::vec3(0.8f, 0.8f, 0.0f)));
@@ -79,7 +82,8 @@ kernelInfo::kernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 
 	camera_info = CameraInfo(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, nx, ny);
 
-	checkCudaErrors(cudaMalloc((void**)&d_camera, sizeof(Camera)));
+	//checkCudaErrors(cudaMalloc((void**)&d_camera, sizeof(Camera)));
+	d_camera = thrust::device_new<Camera*>();
 
 	checkCudaErrors(cudaMalloc((void**)&d_rand_state, nx * ny * sizeof(curandState)));
 
@@ -103,10 +107,10 @@ kernelInfo::kernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 	checkCudaErrors(cudaDeviceSynchronize());
 }
 
-__global__ void set_camera(Camera** d_camera, glm::vec3 position, glm::vec3 forward, glm::vec3 up) {
+__global__ void set_camera(thrust::device_ptr<Camera*> d_camera, glm::vec3 position, glm::vec3 forward, glm::vec3 up) {
 	if (threadIdx.x == 0 && blockIdx.x == 0) {
-		(*d_camera)->setPosition(position);
-		(*d_camera)->setRotation(forward, up);
+		((Camera*) (*d_camera))->setPosition(position);
+		((Camera*) (*d_camera))->setRotation(forward, up);
 	}
 }
 
@@ -136,7 +140,7 @@ void kernelInfo::render(int nx, int ny) {
 	checkCudaErrors(cudaGraphicsUnmapResources(1, &resources, NULL));
 }
 
-__global__ void free_scene(Hittable** d_list, Hittable** d_world, Camera** d_camera) {
+__global__ void free_scene(Hittable** d_list, Hittable** d_world, thrust::device_ptr<Camera*> d_camera) {
 	for (int i = 0; i < 5; i++) {
 		delete ((Sphere*)d_list[i])->mat_ptr;
 		delete d_list[i];
@@ -153,6 +157,7 @@ kernelInfo::~kernelInfo() {
 
 	checkCudaErrors(cudaFree(d_list));
 	checkCudaErrors(cudaFree(d_world));
-	checkCudaErrors(cudaFree(d_camera));
+	//checkCudaErrors(cudaFree(d_camera));
+	thrust::device_free(d_camera);
 	checkCudaErrors(cudaFree(d_rand_state));
 }

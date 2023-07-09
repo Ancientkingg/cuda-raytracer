@@ -5,13 +5,18 @@
 #include <curand_kernel.h>
 #include "Hittable.h"
 
+#include <thrust/device_ptr.h>
+
 struct kernelInfo {
     size_t buffer_size;
-    Camera** d_camera;
+
+    thrust::device_ptr<Camera*> d_camera;
     curandState* d_rand_state;
+
     Hittable** d_list;
     unsigned int list_size;
     Hittable** d_world;
+
     cudaGraphicsResource_t resources;
     CameraInfo camera_info;
 

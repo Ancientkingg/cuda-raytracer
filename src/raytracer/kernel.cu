@@ -21,7 +21,7 @@
 
 #include "raytracer/kernel.h"
 
-__global__ void raytrace(frameBuffer fb, thrust::device_ptr<World*> world, thrust::device_ptr<Camera*> d_camera, thrust::device_ptr<curandState> rand_state) {
+__global__ void raytrace(FrameBuffer fb, thrust::device_ptr<World*> world, thrust::device_ptr<Camera*> d_camera, thrust::device_ptr<curandState> rand_state) {
 
 	// X AND Y coordinates
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
@@ -85,6 +85,8 @@ KernelInfo::KernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 	this->nx = nx;
 	this->ny = ny;
 
+	this->frame_buffer = new FrameBuffer(nx, ny);
+
 	camera_info = CameraInfo(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, (float) nx, (float) ny);
 
 	//checkCudaErrors(cudaMalloc((void**)&d_camera, sizeof(Camera)));
@@ -111,6 +113,9 @@ KernelInfo::KernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 void KernelInfo::resize(int nx, int ny) {
 	this->nx = nx;
 	this->ny = ny;
+
+	delete frame_buffer;
+	this->frame_buffer = new FrameBuffer(nx, ny);
 
 	int tx = 8;
 	int ty = 8;
@@ -140,11 +145,9 @@ void KernelInfo::set_camera(glm::vec3 position, glm::vec3 forward, glm::vec3 up)
 }
 
 void KernelInfo::render() {
-	frameBuffer fb(nx, ny);
-	size_t buffer_size;
 
 	check_cuda_errors(cudaGraphicsMapResources(1, &resources));
-	check_cuda_errors(cudaGraphicsResourceGetMappedPointer((void**)&fb.device_ptr, &buffer_size, resources));
+	check_cuda_errors(cudaGraphicsResourceGetMappedPointer((void**)&(frame_buffer->device_ptr), &(frame_buffer->buffer_size), resources));
 
 	int tx = 8;
 	int ty = 8;
@@ -152,7 +155,8 @@ void KernelInfo::render() {
 	dim3 blocks(nx / tx + 1, ny / ty + 1);
 	dim3 threads(tx, ty);
 
-	raytrace<<<blocks, threads>>> (fb, d_world, d_camera, d_rand_state);
+	// frame buffer is implicitly copied to the device each frame
+	raytrace<<<blocks, threads>>> (*frame_buffer, d_world, d_camera, d_rand_state);
 	check_cuda_errors(cudaGetLastError());
 	// wait for the gpu to finish
 	check_cuda_errors(cudaDeviceSynchronize());
@@ -173,4 +177,6 @@ KernelInfo::~KernelInfo() {
 	thrust::device_free(d_world);
 	thrust::device_free(d_camera);
 	thrust::device_free(d_rand_state);
+
+	delete frame_buffer;
 }

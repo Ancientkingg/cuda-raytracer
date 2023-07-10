@@ -7,49 +7,60 @@
 #include "device_launch_parameters.h"
 #include "Hittable.h"
 #include <curand_kernel.h>
-#include "Material.h"
+
 
 #include "cuda_errors.h"
 
-class frameBuffer {
+class FrameBuffer {
 public:
 	uint32_t* device_ptr; // RGBA8 internal format, but uses BGRA
+	size_t buffer_size;
 	unsigned int width;
 	unsigned int height;
 
 
-	__host__ frameBuffer(unsigned int width, unsigned int height) : width{ width }, height{ height } {}
+	__host__ FrameBuffer(unsigned int width, unsigned int height);
 
-	__device__ void writePixel(int x, int y, glm::vec4 pixel) {
-		int idx = y * width + x;
-		// convert RGBA to BGRA that buffer uses
-		device_ptr[idx] = glm::packUnorm4x8(glm::vec4(pixel.b, pixel.g, pixel.r, pixel.a));
-	}
+	__device__ void writePixel(int x, int y, glm::vec4 pixel);
 
-	__device__ glm::vec3 color(const Ray& r, Hittable* world, curandState* local_rand_state) {
-		Ray cur_ray = r;
-		glm::vec3 cur_attenuation = glm::vec3(1.0, 1.0, 1.0);
-		// ray depth
-		for (int i = 0; i < 50; i++) {
-			HitRecord rec;
-			if (world->hit(cur_ray, 0.001f, FLT_MAX, rec)) {
-				Ray scattered;
-				glm::vec3 attenuation;
-				if (rec.mat_ptr->scatter(cur_ray, rec, attenuation, scattered, local_rand_state)) {
-					cur_attenuation *= attenuation;
-					cur_ray = scattered;
-				}
-				else {
-					return glm::vec3(0.0f, 0.0f, 0.0f);
-				}
+	__device__ glm::vec3 color(const Ray& r, Hittable* world, curandState* local_rand_state);
+};
+
+#ifdef __CUDACC__
+#include "Material.h"
+
+__host__ FrameBuffer::FrameBuffer(unsigned int width, unsigned int height) : width{ width }, height{ height } {}
+
+__device__ void FrameBuffer::writePixel(int x, int y, glm::vec4 pixel) {
+	int idx = y * width + x;
+	// convert RGBA to BGRA that buffer uses
+	device_ptr[idx] = glm::packUnorm4x8(glm::vec4(pixel.b, pixel.g, pixel.r, pixel.a));
+}
+
+__device__ glm::vec3 FrameBuffer::color(const Ray& r, Hittable* world, curandState* local_rand_state) {
+	Ray cur_ray = r;
+	glm::vec3 cur_attenuation = glm::vec3(1.0, 1.0, 1.0);
+	// ray depth
+	for (int i = 0; i < 50; i++) {
+		HitRecord rec;
+		if (world->hit(cur_ray, 0.001f, FLT_MAX, rec)) {
+			Ray scattered;
+			glm::vec3 attenuation;
+			if (rec.mat_ptr->scatter(cur_ray, rec, attenuation, scattered, local_rand_state)) {
+				cur_attenuation *= attenuation;
+				cur_ray = scattered;
 			}
 			else {
-				glm::vec3 unit_direction = glm::normalize(cur_ray.direction);
-				float t = 0.5f * (unit_direction.y + 1.0f);
-				glm::vec3 c = (1.0f - t) * glm::vec3(1.0, 1.0, 1.0) + t * glm::vec3(0.5, 0.7, 1.0);
-				return cur_attenuation * c;
+				return glm::vec3(0.0f, 0.0f, 0.0f);
 			}
 		}
-		return glm::vec3(0.0f, 0.0f, 0.0f);
+		else {
+			glm::vec3 unit_direction = glm::normalize(cur_ray.direction);
+			float t = 0.5f * (unit_direction.y + 1.0f);
+			glm::vec3 c = (1.0f - t) * glm::vec3(1.0, 1.0, 1.0) + t * glm::vec3(0.5, 0.7, 1.0);
+			return cur_attenuation * c;
+		}
 	}
-};
+	return glm::vec3(0.0f, 0.0f, 0.0f);
+	}
+#endif

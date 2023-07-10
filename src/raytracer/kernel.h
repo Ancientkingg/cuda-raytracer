@@ -4,6 +4,7 @@
 #include "cuda_runtime.h"
 #include <curand_kernel.h>
 #include "World.h"
+#include "FrameBuffer.h"
 
 #include <thrust/device_ptr.h>
 
@@ -16,6 +17,7 @@ struct KernelInfo {
 
     cudaGraphicsResource_t resources;
     CameraInfo camera_info;
+    FrameBuffer* frame_buffer;
 
     int nx, ny;
 

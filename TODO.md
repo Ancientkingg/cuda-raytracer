@@ -5,5 +5,5 @@
 - [x] Fix loss of data warnings in Camera class
 - [x] Fix exception thrown when resizing window
 - [x] Fix CUDA memory leak related to `cudaGraphicsGLRegisterBuffer` in `Quad.cpp:75`
-- [ ] Check out how the OpenGL and CUDA interop works since right now a new frame buffer is allocated each frame (seems pretty bad for performance)
+- [x] Check out how the OpenGL and CUDA interop works since right now a new frame buffer is allocated each frame (seems pretty bad for performance)
 - [ ] Add a GUI to display information (imgui)

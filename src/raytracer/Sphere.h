@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include "Hittable.h"
 #include "Material.h"
+#include "AABB.h"
 
 class Sphere : public Hittable {
 public:
@@ -44,5 +45,10 @@ public:
 		}
 		return false;
 
+	}
+
+__device__ bool bounding_box(float t0, float t1, AABB& output_box) const {
+		output_box = AABB(center - glm::vec3(radius, radius, radius), center + glm::vec3(radius, radius, radius));
+		return true;
 	}
 };

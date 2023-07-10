@@ -115,3 +115,9 @@ Before continuing with the project, I decided to try to rewrite the code to impr
 
 I used valgrind and Nvidia's compute sanitizer to detect memory leaks and managed to fix all of them by using RAII.
 
+### Adding a BVH (The next week)
+The next step was to add a bounding volume hierarchy (BVH) to the ray tracer. 
+This would allow us to render more complex scenes with a lot more objects in them.
+I skipped some parts of the "Raytracing The Next Week" since they seemed irrelevant for my **real-time** ray tracer, where I did not need to fake movement.
+
+

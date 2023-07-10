@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Hittable.h"
+#include "AABB.h"
 
 #include "thrust/device_ptr.h"
 #include "thrust/device_malloc.h"
 #include "thrust/device_free.h"
+
 
 
 class World : public Hittable {
@@ -41,6 +43,8 @@ public:
         return hit_anything;
     }
 
+    __device__ virtual bool bounding_box(float time0, float time1, AABB& output_box) const;
+
     __device__ bool add(Hittable* object) {
         if (number_of_objects >= capacity) {
 			return false;
@@ -69,6 +73,37 @@ __device__ World::~World() {
         delete (Sphere*) objects[i];
     }
     delete[] objects;
+}
+
+__device__ AABB surrounding_box(AABB box0, AABB box1) {
+    glm::vec3 small(fmin(box0.min().x, box1.min().x),
+        fmin(box0.min().y, box1.min().y),
+        fmin(box0.min().z, box1.min().z));
+
+    glm::vec3 big(fmax(box0.max().x, box1.max().x),
+        fmax(box0.max().y, box1.max().y),
+        fmax(box0.max().z, box1.max().z));
+
+    return AABB(small, big);
+}
+
+__device__ bool World::bounding_box(float time0, float time1, AABB& output_box) const {
+    if (number_of_objects < 1) {
+        return false;
+    }
+
+    AABB temp_box;
+    bool first_box = true;
+
+    for (int i = 0; i < number_of_objects; i++) {
+        if (!objects[i]->bounding_box(time0, time1, temp_box)) {
+            return false;
+        }
+        output_box = first_box ? temp_box : surrounding_box(output_box, temp_box);
+        first_box = false;
+    }
+
+    return true;
 }
 
 #endif

@@ -15,6 +15,7 @@
 #include "Sphere.h"
 #include "World.h"
 #include "Camera.h"
+#include "BVHNode.h"
 
 #include <thrust/device_new.h>
 #include <thrust/device_free.h>

@@ -149,8 +149,8 @@ void KernelInfo::render() {
 	check_cuda_errors(cudaGraphicsMapResources(1, &resources));
 	check_cuda_errors(cudaGraphicsResourceGetMappedPointer((void**)&(frame_buffer->device_ptr), &(frame_buffer->buffer_size), resources));
 
-	int tx = 8;
-	int ty = 8;
+	int tx = 32;
+	int ty = 32;
 
 	dim3 blocks(nx / tx + 1, ny / ty + 1);
 	dim3 threads(tx, ty);

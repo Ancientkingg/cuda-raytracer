@@ -77,16 +77,16 @@ int Window::init_framebuffer() {
 int Window::init_quad() {
 	
 	_blit_quad = std::make_unique<Quad>(Window::width, Window::height);
-	_blit_quad->makeFBO();
+	_blit_quad->make_FBO();
 
 	_shader = std::make_unique<Shader>("./shaders/rendertype_screen.vert", "./shaders/rendertype_screen.frag");
 	_current_frame = std::make_unique<Quad>(Window::width, Window::height);
-	_current_frame->cudaInit();
-	_current_frame->makeFBO();
+	_current_frame->cuda_init();
+	_current_frame->make_FBO();
 
 	_accum_shader = std::make_unique<Shader>("./shaders/rendertype_accumulate.vert", "./shaders/rendertype_accumulate.frag");
 	_accum_frame = std::make_unique<Quad>(Window::width, Window::height);
-	_accum_frame->makeFBO();
+	_accum_frame->make_FBO();
 
 	_accum_shader->use();
 	glUniform1i(glGetUniformLocation(_accum_shader->ID, "currentFrameTex"), 0);
@@ -114,6 +114,9 @@ int Window::init() {
 
 void Window::destroy() {
 
+	// Terminate CUDA allocated buffer
+	_current_frame->cuda_destroy();
+
 	// Terminate GLFW
 	glfwDestroyWindow(_window);
 	glfwTerminate();
@@ -122,9 +125,9 @@ void Window::destroy() {
 void Window::tick_input(float t_diff) {
 
 	//input
-	_input.processQuit(_window);
-	_input.processCameraMovement(_window, *(_current_frame->_renderer), t_diff);
-	if (_input.hasCameraMoved()) _frame_count = 1;
+	_input.process_quit(_window);
+	_input.process_camera_movement(_window, *(_current_frame->_renderer), t_diff);
+	if (_input.has_camera_moved()) _frame_count = 1;
 }
 
 void copyFrameBufferTexture(int width, int height, int fboIn, int textureIn, int fboOut, int textureOut) {
@@ -157,7 +160,7 @@ void Window::tick_render() {
 
 	// Render current frame
 	glBindFramebuffer(GL_FRAMEBUFFER, _current_frame->framebuffer);
-	_current_frame->renderKernel();
+	_current_frame->render_kernel();
 	_shader->use();
 	glBindVertexArray(_current_frame->VAO);
 	glBindTexture(GL_TEXTURE_2D, _current_frame->texture);

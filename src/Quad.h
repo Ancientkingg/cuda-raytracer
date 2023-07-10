@@ -16,20 +16,19 @@ public:
 
 	unsigned int texture;
 	unsigned int PBO; // pixel buffer object
-	std::unique_ptr<kernelInfo> _renderer;
+	std::unique_ptr<KernelInfo> _renderer;
 	unsigned int framebuffer;
 
 	cudaGraphicsResource_t CGR;
-	cudaArray_t CA;
 
 	unsigned int width, height;
 
 	std::vector<float> vertices;
 	Quad(unsigned int width, unsigned int height);
 
-	void cudaInit();
-	void renderKernel();
+	void cuda_init();
+	void cuda_destroy();
+	void render_kernel();
 	void resize(unsigned int width, unsigned int height);
-	void setTexUniforms(unsigned int otherTex);
-	void makeFBO();
+	void make_FBO();
 };

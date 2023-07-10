@@ -70,22 +70,27 @@ Quad::Quad(unsigned int width, unsigned int height) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Quad::cudaInit() {
-    checkCudaErrors(
+void Quad::cuda_init() {
+    check_cuda_errors(
         cudaGraphicsGLRegisterBuffer(&CGR,
             PBO,
             cudaGraphicsRegisterFlagsNone));
-    _renderer = std::make_unique<kernelInfo>(this->CGR, width, height);
+    _renderer = std::make_unique<KernelInfo>(this->CGR, width, height);
 }
 
-void Quad::makeFBO() {
+void Quad::cuda_destroy() {
+    check_cuda_errors(
+        cudaGraphicsUnregisterResource(CGR));
+}
+
+void Quad::make_FBO() {
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Quad::renderKernel() {
+void Quad::render_kernel() {
     glBindTexture(GL_TEXTURE_2D, 0);
     _renderer->render();
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, this->PBO);
@@ -110,10 +115,10 @@ void Quad::resize(unsigned int width, unsigned int height) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);    
 
     if (_renderer != nullptr) {
-        checkCudaErrors(
+        check_cuda_errors(
             cudaGraphicsUnregisterResource(CGR));
 
-        checkCudaErrors(
+        check_cuda_errors(
             cudaGraphicsGLRegisterBuffer(&CGR,
                 PBO,
                 cudaGraphicsRegisterFlagsNone));

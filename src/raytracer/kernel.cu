@@ -80,7 +80,7 @@ __global__ void render_init(int width, int height, thrust::device_ptr<curandStat
 }
 
 
-kernelInfo::kernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
+KernelInfo::KernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 	this->resources = resources;
 	this->nx = nx;
 	this->ny = ny;
@@ -95,8 +95,8 @@ kernelInfo::kernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 
 	create_world<<<1, 1>>> (d_world, d_camera, camera_info);
 
-	checkCudaErrors(cudaGetLastError());
-	checkCudaErrors(cudaDeviceSynchronize());
+	check_cuda_errors(cudaGetLastError());
+	check_cuda_errors(cudaDeviceSynchronize());
 
 	int tx = 8;
 	int ty = 8;
@@ -104,11 +104,11 @@ kernelInfo::kernelInfo(cudaGraphicsResource_t resources, int nx, int ny) {
 	dim3 blocks(nx / tx + 1, ny / ty + 1);
 	dim3 threads(tx, ty);
 	render_init<<<blocks, threads>>> (nx, ny, d_rand_state);
-	checkCudaErrors(cudaGetLastError());
-	checkCudaErrors(cudaDeviceSynchronize());
+	check_cuda_errors(cudaGetLastError());
+	check_cuda_errors(cudaDeviceSynchronize());
 }
 
-void kernelInfo::resize(int nx, int ny) {
+void KernelInfo::resize(int nx, int ny) {
 	this->nx = nx;
 	this->ny = ny;
 
@@ -122,29 +122,29 @@ void kernelInfo::resize(int nx, int ny) {
 	dim3 blocks(nx / tx + 1, ny / ty + 1);
 	dim3 threads(tx, ty);
 	render_init << <blocks, threads >> > (nx, ny, d_rand_state);
-	checkCudaErrors(cudaGetLastError());
-	checkCudaErrors(cudaDeviceSynchronize());
+	check_cuda_errors(cudaGetLastError());
+	check_cuda_errors(cudaDeviceSynchronize());
 }
 
-__global__ void set_camera(thrust::device_ptr<Camera*> d_camera, glm::vec3 position, glm::vec3 forward, glm::vec3 up, float aspect_ratio) {
+__global__ void set_device_camera(thrust::device_ptr<Camera*> d_camera, glm::vec3 position, glm::vec3 forward, glm::vec3 up, float aspect_ratio) {
 	if (threadIdx.x == 0 && blockIdx.x == 0) {
 		((Camera*) (*d_camera))->set_position(position);
 		((Camera*) (*d_camera))->set_rotation(forward, up, aspect_ratio);
 	}
 }
 
-void kernelInfo::setCamera(glm::vec3 position, glm::vec3 forward, glm::vec3 up) {
-	set_camera<<<1, 1>>> (d_camera, position, forward, up, (float) nx / (float) ny);
-	checkCudaErrors(cudaGetLastError());
-	checkCudaErrors(cudaDeviceSynchronize());
+void KernelInfo::set_camera(glm::vec3 position, glm::vec3 forward, glm::vec3 up) {
+	set_device_camera<<<1, 1>>> (d_camera, position, forward, up, (float) nx / (float) ny);
+	check_cuda_errors(cudaGetLastError());
+	check_cuda_errors(cudaDeviceSynchronize());
 }
 
-void kernelInfo::render() {
+void KernelInfo::render() {
 	frameBuffer fb(nx, ny);
 	size_t buffer_size;
 
-	checkCudaErrors(cudaGraphicsMapResources(1, &resources));
-	checkCudaErrors(cudaGraphicsResourceGetMappedPointer((void**)&fb.device_ptr, &buffer_size, resources));
+	check_cuda_errors(cudaGraphicsMapResources(1, &resources));
+	check_cuda_errors(cudaGraphicsResourceGetMappedPointer((void**)&fb.device_ptr, &buffer_size, resources));
 
 	int tx = 8;
 	int ty = 8;
@@ -153,11 +153,11 @@ void kernelInfo::render() {
 	dim3 threads(tx, ty);
 
 	raytrace<<<blocks, threads>>> (fb, d_world, d_camera, d_rand_state);
-	checkCudaErrors(cudaGetLastError());
+	check_cuda_errors(cudaGetLastError());
 	// wait for the gpu to finish
-	checkCudaErrors(cudaDeviceSynchronize());
+	check_cuda_errors(cudaDeviceSynchronize());
 
-	checkCudaErrors(cudaGraphicsUnmapResources(1, &resources));
+	check_cuda_errors(cudaGraphicsUnmapResources(1, &resources));
 }
 
 __global__ void free_scene(thrust::device_ptr<World*> d_world, thrust::device_ptr<Camera*> d_camera) {
@@ -165,8 +165,8 @@ __global__ void free_scene(thrust::device_ptr<World*> d_world, thrust::device_pt
 	delete* d_camera;
 }
 
-kernelInfo::~kernelInfo() {
-	checkCudaErrors(cudaDeviceSynchronize());
+KernelInfo::~KernelInfo() {
+	check_cuda_errors(cudaDeviceSynchronize());
 
 	free_scene<<<1, 1>>> (d_world, d_camera);
 

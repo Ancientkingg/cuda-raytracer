@@ -17,9 +17,9 @@ struct Input {
 		last_ypos = 0;
 		has_moved = false;
 	}
-	void processQuit(GLFWwindow* window);
-	void processCameraMovement(GLFWwindow* window, kernelInfo& kernelInfo, float t_diff);
-	bool hasCameraMoved();
+	void process_quit(GLFWwindow* window);
+	void process_camera_movement(GLFWwindow* window, KernelInfo& kernelInfo, float t_diff);
+	bool has_camera_moved();
 };
 
 

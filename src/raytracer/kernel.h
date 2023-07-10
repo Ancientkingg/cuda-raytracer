@@ -7,7 +7,7 @@
 
 #include <thrust/device_ptr.h>
 
-struct kernelInfo {
+struct KernelInfo {
 
     thrust::device_ptr<Camera*> d_camera;
     thrust::device_ptr<curandState> d_rand_state;
@@ -19,10 +19,10 @@ struct kernelInfo {
 
     int nx, ny;
 
-    kernelInfo() {}
-    ~kernelInfo();
-    kernelInfo(cudaGraphicsResource_t resources, int nx, int ny);
-    void setCamera(glm::vec3 position, glm::vec3 forward, glm::vec3 up);
+    KernelInfo() {}
+    ~KernelInfo();
+    KernelInfo(cudaGraphicsResource_t resources, int nx, int ny);
+    void set_camera(glm::vec3 position, glm::vec3 forward, glm::vec3 up);
     void render();
     void resize(int nx, int ny);
 };

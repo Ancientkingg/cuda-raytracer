@@ -11,17 +11,17 @@
 
 #define isPressed(x) glfwGetKey(window,x)==GLFW_PRESS 
 
-void Input::processQuit(GLFWwindow* window)
+void Input::process_quit(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 }
 
-bool Input::hasCameraMoved() {
+bool Input::has_camera_moved() {
 	return has_moved;
 }
 
-void Input::processCameraMovement(GLFWwindow* window, kernelInfo& kernelInfo, float t_diff) {
+void Input::process_camera_movement(GLFWwindow* window, KernelInfo& kernelInfo, float t_diff) {
 	has_moved = false;
 	glm::vec3 position = kernelInfo.camera_info.origin;
 	glm::vec3 rotation = kernelInfo.camera_info.rotation;
@@ -123,5 +123,5 @@ void Input::processCameraMovement(GLFWwindow* window, kernelInfo& kernelInfo, fl
 
 	kernelInfo.camera_info.origin = position;
 
-	kernelInfo.setCamera(position, forward, up);
+	kernelInfo.set_camera(position, forward, up);
 }

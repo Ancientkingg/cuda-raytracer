@@ -9,6 +9,7 @@ class Material;
 
 struct HitRecord {
 	float t;
+	float u, v;
 	glm::vec3 p;
 	glm::vec3 normal;
 	Material* mat_ptr;

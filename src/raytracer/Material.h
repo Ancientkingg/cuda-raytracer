@@ -7,6 +7,7 @@ struct HitRecord;
 
 #include "Ray.h"
 #include "Hittable.h"
+#include "Texture.h"
 
 #define RANDVEC3 glm::vec3(curand_uniform(local_rand_state),curand_uniform(local_rand_state),curand_uniform(local_rand_state))
 
@@ -49,9 +50,10 @@ public:
 };
 
 class Lambertian : public Material {
-	glm::vec3 albedo;
+	Texture* albedo;
 public:
-	__device__ Lambertian(const glm::vec3& a): albedo(a) {}
+	__device__ Lambertian(const glm::vec3& a): albedo(new SolidColor(a)) {}
+	__device__ Lambertian(Texture* a) : albedo(a) {}
 	__device__ virtual bool scatter(const Ray& r_in, const HitRecord& rec, glm::vec3& attenuation, Ray& scattered, curandState* local_rand_state) const {
 		glm::vec3 scatter_direction = random_in_hemisphere(local_rand_state, rec.normal);
 
@@ -60,8 +62,12 @@ public:
 		}
 
 		scattered = Ray(rec.p, scatter_direction);
-		attenuation = albedo;
+		attenuation = albedo->value(rec.u, rec.v, rec.p);
 		return true;
+	}
+
+	__device__ ~Lambertian() {
+		delete albedo;
 	}
 };
 

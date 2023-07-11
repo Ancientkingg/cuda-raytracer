@@ -120,4 +120,11 @@ The next step was to add a bounding volume hierarchy (BVH) to the ray tracer.
 This would allow us to render more complex scenes with a lot more objects in them.
 I skipped some parts of the "Raytracing The Next Week" since they seemed irrelevant for my **real-time** ray tracer, where I did not need to fake movement.
 
+### Textures
+The next step was to add textures to the ray tracer. I started with making a simple chekerboard texture that I applied to a sphere in my scene.
+
+![Checkerboard image](./docs/images/checkered_texture.png)
+
+My ray tracer was starting to take shape, but I still had a lot of work to do.
+
 

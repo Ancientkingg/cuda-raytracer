@@ -5,6 +5,8 @@
 #include "Material.h"
 #include "AABB.h"
 
+#define M_PI 3.14159265358979323846264338327950288f
+
 class Sphere : public Hittable {
 public:
 	glm::vec3 center;
@@ -29,7 +31,9 @@ public:
 			if (temp > t_min && temp < t_max) {
 				rec.t = temp;
 				rec.p = r.at(rec.t);
-				rec.set_face_normal(r, (rec.p - center) / radius);
+				glm::vec3 outward_normal = (rec.p - center) / radius;
+				rec.set_face_normal(r, outward_normal);
+				get_sphere_uv(outward_normal, rec.u, rec.v);
 				rec.mat_ptr = mat_ptr;
 				return true;
 			}
@@ -38,7 +42,9 @@ public:
 			if (temp > t_min && temp < t_max) {
 				rec.t = temp;
 				rec.p = r.at(rec.t);
-				rec.set_face_normal(r, (rec.p - center) / radius);
+				glm::vec3 outward_normal = (rec.p - center) / radius;
+				rec.set_face_normal(r, outward_normal);
+				get_sphere_uv(outward_normal, rec.u, rec.v);
 				rec.mat_ptr = mat_ptr;
 				return true;
 			}
@@ -47,8 +53,16 @@ public:
 
 	}
 
-__device__ bool bounding_box(float t0, float t1, AABB& output_box) const {
+	__device__ bool bounding_box(float t0, float t1, AABB& output_box) const {
 		output_box = AABB(center - glm::vec3(radius, radius, radius), center + glm::vec3(radius, radius, radius));
 		return true;
+	}
+
+	__device__ static void get_sphere_uv(const glm::vec3& p, float& u, float& v) {
+		float theta = acosf(-p.y);
+		float phi = atan2f(-p.z, p.x) + M_PI;
+
+		u = phi / (2 * M_PI);
+		v = theta / M_PI;
 	}
 };
